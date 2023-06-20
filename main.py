@@ -6,6 +6,9 @@ from pathlib import Path
 from tkinter import simpledialog
 
 actu_repo = ""
+actu_repo_folder = ""
+
+# pomme de terre
 
 class CustomDialog(simpledialog.Dialog):
     def body(self, master):
@@ -26,16 +29,17 @@ def crash(pb:str):
 
 def command(exFolder, command):
     os.chdir(exFolder)
-    os.system(command)
-    return True
+    return os.popen(command).read()
 
 def refresh_actu_repo(event, a, b):
-    global actu_repo
+    global actu_repo, actu_repo_folder
     if selection.get() != "---SELECT---":
         actu_repo = selection.get()
+        actu_repo_folder = f"{GITHUB_FOLDER}\{actu_repo}"
         actu_repo_title["text"] = selection.get()
     else:
         actu_repo = ""
+        actu_repo_folder = ""
         actu_repo_title["text"] = "No repository selected"
 
 if not(os.path.exists("param.json")):
@@ -102,6 +106,31 @@ def refresh_repos():
     for option in github_folders:
         dropdown["menu"].add_command(label=option, command=tk._setit(selection, option))
 
+def get_git_status():
+    if actu_repo == "":
+        return False
+    result = command(actu_repo_folder,"git add .")
+    result = command(actu_repo_folder,"git status")
+    modified_files = []
+    lines = result.split('\n')
+    for line in lines:
+        if line.startswith('\tmodified:'):
+            modified_files.append(("m",line.strip().replace("modified:   ","")))
+        if line.startswith('\tnew file:'):
+            modified_files.append(("n",line.strip().replace("new file:   ","")))
+        if line.startswith('\tdeleted:'):
+            modified_files.append(("d",line.strip().replace("deleted:    ","")))
+    matchStatusColor = {
+        "m":"#0366d6",
+        "n":"#2fd04e",
+        "d":"#bf0404"
+    }
+    status_list.delete(0, tk.END)
+    for status,file in modified_files:
+        status_list.insert(tk.END, file)
+        status_list.itemconfig(tk.END, fg=matchStatusColor[status])
+    return modified_files
+
 ##################
 # TKINTER WINDOW #
 ##################
@@ -131,8 +160,18 @@ repo_selection.pack(anchor="nw")
 
 actu_repo_title = tk.Label(window, text="No repository selected", bg="#424242", fg="#ffffff", font=("Times",21))
 actu_repo_title.pack(padx=5)
-
 selection.trace_add("write", refresh_actu_repo)
 dropdown.bind("<<OptionMenuSelect>>",refresh_actu_repo)
+
+command_frame = tk.Frame(window, bg="#424242")
+
+status_list_container = tk.Frame(command_frame, bd=3, relief="groove", bg="#424242")
+status_bouton = tk.Button(status_list_container, text="Status", command=get_git_status)
+status_bouton.pack(pady=5)
+status_list = tk.Listbox(status_list_container)
+status_list.pack()
+status_list_container.pack(side="left")
+
+command_frame.pack(anchor="n")
 
 window.mainloop()
