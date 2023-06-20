@@ -4,6 +4,7 @@ import os
 import json
 from pathlib import Path
 from tkinter import simpledialog
+from tkinter import messagebox
 
 actu_repo = ""
 actu_repo_folder = ""
@@ -131,6 +132,18 @@ def get_git_status():
         status_list.itemconfig(tk.END, fg=matchStatusColor[status])
     return modified_files
 
+def make_git_commit():
+    message = commit_message.get()
+    if message == "":
+        messagebox.showwarning("Commit error", "Summary is required")
+        return False
+    command(actu_repo_folder,f"git commit -m \"{message}\"")
+    get_git_status()
+
+def make_git_push():
+    command(actu_repo_folder,f"git push origin main") ############################################ ! ONLY FOR MAIN BRANCH !!!!!!!!!!
+    get_git_status()
+
 ##################
 # TKINTER WINDOW #
 ##################
@@ -170,7 +183,19 @@ status_bouton = tk.Button(status_list_container, text="Status", command=get_git_
 status_bouton.pack(pady=5)
 status_list = tk.Listbox(status_list_container)
 status_list.pack()
-status_list_container.pack(side="left")
+status_list_container.pack(side="left", padx=5)
+
+commit_container = tk.Frame(command_frame, bd=3, relief="groove", bg="#424242")
+commit_message = tk.Entry(commit_container)
+commit_message.pack()
+commit_bouton = tk.Button(commit_container, text="Commit", command=make_git_commit)
+commit_bouton.pack(pady=5)
+commit_container.pack(side="left", padx=5)
+
+push_container = tk.Frame(command_frame, bd=3, relief="groove", bg="#424242")
+push_bouton = tk.Button(push_container, text="Push main branch on GitHub", command=make_git_push)
+push_bouton.pack(pady=5)
+push_container.pack(side="left", padx=5)
 
 command_frame.pack(anchor="n")
 
