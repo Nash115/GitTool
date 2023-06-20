@@ -44,6 +44,9 @@ if not(os.path.exists("userPreferences.json")):
     with open("userPreferences.json","w") as f:
         f.write(str(json.dumps({"repoFolder": ""}, indent=4)))
 
+######################
+# GIT COMMAND/FOLDER #
+######################
 with open("param.json", "r") as f:
     param = json.load(f)
     git_folder = param["gitPath"]
@@ -59,6 +62,9 @@ with open("param.json","w") as f:
     f.write(str(json.dumps(param, indent=4)))
 GIT_FOLDER = git_folder
 
+#################
+# GITHUB FOLDER #
+#################
 if pref["repoFolder"] == "":
     pre_github_folder = Path.home() / "Documents" / "GitHub"
     if not(os.path.exists(pre_github_folder)):
@@ -79,6 +85,9 @@ list_in_github_folder = os.listdir(GITHUB_FOLDER)
 github_folders = [element for element in list_in_github_folder if os.path.isdir(os.path.join(GITHUB_FOLDER, element))]
 github_folders.append("---SELECT---")
 
+#####################
+# FUNCs USED IN TK  #
+#####################
 def clone_repo():
     dialog = CustomDialog(window, title="Repo url :")
     repo_url = dialog.result
@@ -93,6 +102,9 @@ def refresh_repos():
     for option in github_folders:
         dropdown["menu"].add_command(label=option, command=tk._setit(selection, option))
 
+##################
+# TKINTER WINDOW #
+##################
 window = tk.Tk()
 window.title("GitTool")
 window.geometry("800x450")
