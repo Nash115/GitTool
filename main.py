@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 from tkinter import simpledialog
 
+actu_repo = ""
+
 class CustomDialog(simpledialog.Dialog):
     def body(self, master):
         self.entry = tk.Entry(master, width=100)
@@ -26,6 +28,15 @@ def command(exFolder, command):
     os.chdir(exFolder)
     os.system(command)
     return True
+
+def refresh_actu_repo(event, a, b):
+    global actu_repo
+    if selection.get() != "---SELECT---":
+        actu_repo = selection.get()
+        actu_repo_title["text"] = selection.get()
+    else:
+        actu_repo = ""
+        actu_repo_title["text"] = "No repository selected"
 
 if not(os.path.exists("param.json")):
     crash("param.json not present")
@@ -85,6 +96,7 @@ def refresh_repos():
 window = tk.Tk()
 window.title("GitTool")
 window.geometry("800x450")
+window.minsize(300,300)
 window.config(background="#424242")
 
 repo_location = tk.Frame(window, bd=3, relief="groove", bg="#424242")
@@ -104,5 +116,11 @@ dropdown.pack(side="left", padx=5)
 clone_bouton = tk.Button(repo_selection, text="Clone a repo", command=clone_repo)
 clone_bouton.pack(side="left", padx=5)
 repo_selection.pack(anchor="nw")
+
+actu_repo_title = tk.Label(window, text="No repository selected", bg="#424242", fg="#ffffff", font=("Times",21))
+actu_repo_title.pack(padx=5)
+
+selection.trace_add("write", refresh_actu_repo)
+dropdown.bind("<<OptionMenuSelect>>",refresh_actu_repo)
 
 window.mainloop()
