@@ -132,6 +132,10 @@ def get_git_status():
         status_list.itemconfig(tk.END, fg=matchStatusColor[status])
     return modified_files
 
+def make_git_fetch():
+    command(actu_repo_folder,f"git fetch")
+    get_git_status()
+
 def make_git_commit():
     message = commit_message.get()
     if message == "":
@@ -160,23 +164,44 @@ refresh_button = tk.Button(repo_location, text="Refresh", command=refresh_repos)
 refresh_button.pack(side="left", padx=5)
 repo_location.pack(anchor="nw")
 
-repo_selection = tk.Frame(window, bd=3, relief="groove", bg="#424242")
-label = tk.Label(repo_selection, text="Repo :", bg="#424242", fg="#ffffff")
-label.pack(side="left", padx=5)
+repo_info = tk.Frame(window, bg="#424242")
+
+repo_selection = tk.Frame(repo_info, bd=3, relief="groove", bg="#424242")
+label_repo = tk.Label(repo_selection, text="Repo :", bg="#424242", fg="#ffffff")
+label_repo.pack(side="left", padx=5)
 selection = tk.StringVar(repo_selection)
 selection.set(github_folders[-1])
 dropdown = tk.OptionMenu(repo_selection, selection, *github_folders)
 dropdown.pack(side="left", padx=5)
 clone_bouton = tk.Button(repo_selection, text="Clone a repo", command=clone_repo)
 clone_bouton.pack(side="left", padx=5)
-repo_selection.pack(anchor="nw")
+repo_selection.pack(side="left", padx=5)
 
-actu_repo_title = tk.Label(window, text="No repository selected", bg="#424242", fg="#ffffff", font=("Times",21))
-actu_repo_title.pack(padx=5)
+# branch_selection = tk.Frame(repo_info, bd=3, relief="groove", bg="#424242")
+# label_branch = tk.Label(branch_selection, text="Branch :", bg="#424242", fg="#ffffff")
+# label_branch.pack(side="left", padx=5)
+# selection_branch = tk.StringVar(branch_selection)
+# selection_branch.set(github_folders[-1])
+# dropdown_branch = tk.OptionMenu(branch_selection, selection_branch, *github_folders)
+# dropdown_branch.pack(side="left", padx=5)
+# add_branch_bouton = tk.Button(branch_selection, text="New branch", command=clone_repo)
+# add_branch_bouton.pack(side="left", padx=5)
+# branch_selection.pack(side="left", padx=5)
+
+repo_info.pack(anchor="nw")
+
 selection.trace_add("write", refresh_actu_repo)
 dropdown.bind("<<OptionMenuSelect>>",refresh_actu_repo)
 
+actu_repo_title = tk.Label(window, text="No repository selected", bg="#424242", fg="#ffffff", font=("Times",21))
+actu_repo_title.pack(padx=5)
+
 command_frame = tk.Frame(window, bg="#424242")
+
+fetch_container = tk.Frame(command_frame, bd=3, relief="groove", bg="#424242")
+status_bouton = tk.Button(fetch_container, text="Fetch", command=make_git_fetch)
+status_bouton.pack(pady=5)
+fetch_container.pack(side="left", padx=5)
 
 status_list_container = tk.Frame(command_frame, bd=3, relief="groove", bg="#424242")
 status_bouton = tk.Button(status_list_container, text="Status", command=get_git_status)
