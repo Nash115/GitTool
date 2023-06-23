@@ -8,6 +8,11 @@ from tkinter import messagebox
 
 actu_repo = ""
 actu_repo_folder = ""
+branches = {
+    "actual":"",
+    "others":[]
+}
+branches_list = ["NO REPO SELECTED"]
 
 # pomme de terre
 
@@ -42,6 +47,7 @@ def refresh_actu_repo(event, a, b):
         actu_repo = ""
         actu_repo_folder = ""
         actu_repo_title["text"] = "No repository selected"
+    read_branches(0,0,0)
 
 if not(os.path.exists("param.json")):
     crash("param.json not present")
@@ -98,6 +104,52 @@ def clone_repo():
     repo_url = dialog.result
     command(GITHUB_FOLDER, f"{GIT_FOLDER} clone {repo_url}")
 
+def read_branches(event, a, b):
+    global branches, branches_list
+    if actu_repo == "":
+        return False
+    branches = {
+        "actual":"",
+        "others":[]
+    }
+
+    if event != 0 and (branches_list != [] and branches_list != ["NO REPO SELECTED"]):
+        branch_name = selection_branch.get()
+        command(actu_repo_folder, f"{GIT_FOLDER} checkout {branch_name}")
+
+    result = command(actu_repo_folder,f"{GIT_FOLDER} branch")
+    lines = result.split('\n')
+    for line in lines:
+        if line.startswith('* '):
+            branches["actual"] = line.strip().replace("* ","")
+        if line.startswith('  '):
+            branches["others"].append(line.strip().replace("  ",""))
+    
+    branches_list = [] # Index  0 => actual branch
+    branches_list.append(branches["actual"])
+    for i in branches["others"]:
+        branches_list.append(i)
+    selection_branch.set(branches_list[0])
+    dropdown_branch["menu"].delete(0, "end")
+    for option in branches_list:
+        dropdown_branch["menu"].add_command(label=option, command=tk._setit(selection_branch, option))
+
+    if branches_list == []:
+        branches_list = ["NO REPO SELECTED"]
+    return branches_list
+read_branches(0,0,0)
+
+def create_branch():
+    dialog = CustomDialog(window, title="Name of the branch to create:")
+    branch_name = dialog.result
+    command(actu_repo_folder, f"{GIT_FOLDER} branch {branch_name}")
+
+def delete_branch():
+    messagebox.showwarning("GitTool Warning", "WARNING ! Deleting the branch is permanent.")
+    dialog = CustomDialog(window, title="Name of the branch to delete:")
+    branch_name = dialog.result
+    command(actu_repo_folder, f"{GIT_FOLDER} branch -D {branch_name}")
+
 def refresh_repos():
     list_in_github_folder = os.listdir(GITHUB_FOLDER)
     github_folders = [element for element in list_in_github_folder if os.path.isdir(os.path.join(GITHUB_FOLDER, element))]
@@ -139,7 +191,7 @@ def make_git_fetch():
 def make_git_commit():
     message = commit_message.get()
     if message == "":
-        messagebox.showwarning("Commit error", "Summary is required")
+        messagebox.showerror("Commit error", "Summary is required")
         return False
     command(actu_repo_folder,f"{GIT_FOLDER} commit -m \"{message}\"")
     get_git_status()
@@ -153,7 +205,7 @@ def make_git_push():
 ##################
 window = tk.Tk()
 window.title("GitTool")
-window.geometry("800x450")
+window.geometry("940x500")
 window.minsize(300,300)
 window.config(background="#424242")
 
@@ -175,15 +227,31 @@ dropdown = tk.OptionMenu(repo_selection, selection, *github_folders)
 dropdown.pack(side="left", padx=5)
 clone_bouton = tk.Button(repo_selection, text="Clone a repo", command=clone_repo)
 clone_bouton.pack(side="left", padx=5)
-repo_selection.pack(side="left", padx=5)
+repo_selection.pack(side="left")
+
+actu_repo_title = tk.Label(repo_info, text="No repository selected", bg="#424242", fg="#ffffff", font=("Times",21))
+actu_repo_title.pack(side="left", padx=15)
+
+branch_selection = tk.Frame(repo_info, bd=3, relief="groove", bg="#424242")
+label_branch = tk.Label(branch_selection, text="Branch :", bg="#424242", fg="#ffffff")
+label_branch.pack(side="left", padx=5)
+selection_branch = tk.StringVar(branch_selection)
+selection_branch.set(branches_list[0])
+dropdown_branch = tk.OptionMenu(branch_selection, selection_branch, *branches_list)
+dropdown_branch.pack(side="left", padx=5)
+add_branch_bouton = tk.Button(branch_selection, text="New branch", command=create_branch)
+add_branch_bouton.pack(side="left", padx=5)
+remove_branch_bouton = tk.Button(branch_selection, text="Remove a branch", command=delete_branch)
+remove_branch_bouton.pack(side="left", padx=5)
+branch_selection.pack(side="left")
 
 repo_info.pack(anchor="nw")
 
 selection.trace_add("write", refresh_actu_repo)
 dropdown.bind("<<OptionMenuSelect>>",refresh_actu_repo)
 
-actu_repo_title = tk.Label(window, text="No repository selected", bg="#424242", fg="#ffffff", font=("Times",21))
-actu_repo_title.pack(padx=5)
+selection_branch.trace_add("write", read_branches)
+dropdown_branch.bind("<<OptionMenuSelect>>",read_branches)
 
 command_frame = tk.Frame(window, bg="#424242")
 
@@ -211,6 +279,6 @@ push_bouton = tk.Button(push_container, text="Push main branch on GitHub", comma
 push_bouton.pack(pady=5)
 push_container.pack(side="left", padx=5)
 
-command_frame.pack(anchor="n")
+command_frame.pack(anchor="n", pady=20)
 
 window.mainloop()
