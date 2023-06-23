@@ -110,8 +110,8 @@ def refresh_repos():
 def get_git_status():
     if actu_repo == "":
         return False
-    result = command(actu_repo_folder,"git add .")
-    result = command(actu_repo_folder,"git status")
+    result = command(actu_repo_folder,f"{GIT_FOLDER} add .")
+    result = command(actu_repo_folder,f"{GIT_FOLDER} status")
     modified_files = []
     lines = result.split('\n')
     for line in lines:
@@ -133,7 +133,7 @@ def get_git_status():
     return modified_files
 
 def make_git_fetch():
-    command(actu_repo_folder,f"git fetch")
+    command(actu_repo_folder,f"{GIT_FOLDER} fetch")
     get_git_status()
 
 def make_git_commit():
@@ -141,11 +141,11 @@ def make_git_commit():
     if message == "":
         messagebox.showwarning("Commit error", "Summary is required")
         return False
-    command(actu_repo_folder,f"git commit -m \"{message}\"")
+    command(actu_repo_folder,f"{GIT_FOLDER} commit -m \"{message}\"")
     get_git_status()
 
 def make_git_push():
-    command(actu_repo_folder,f"git push origin main") ############################################ ! ONLY FOR MAIN BRANCH !!!!!!!!!!
+    command(actu_repo_folder,f"{GIT_FOLDER} push origin main") ############################################ ! ONLY FOR MAIN BRANCH !!!!!!!!!!
     get_git_status()
 
 ##################
@@ -176,17 +176,6 @@ dropdown.pack(side="left", padx=5)
 clone_bouton = tk.Button(repo_selection, text="Clone a repo", command=clone_repo)
 clone_bouton.pack(side="left", padx=5)
 repo_selection.pack(side="left", padx=5)
-
-# branch_selection = tk.Frame(repo_info, bd=3, relief="groove", bg="#424242")
-# label_branch = tk.Label(branch_selection, text="Branch :", bg="#424242", fg="#ffffff")
-# label_branch.pack(side="left", padx=5)
-# selection_branch = tk.StringVar(branch_selection)
-# selection_branch.set(github_folders[-1])
-# dropdown_branch = tk.OptionMenu(branch_selection, selection_branch, *github_folders)
-# dropdown_branch.pack(side="left", padx=5)
-# add_branch_bouton = tk.Button(branch_selection, text="New branch", command=clone_repo)
-# add_branch_bouton.pack(side="left", padx=5)
-# branch_selection.pack(side="left", padx=5)
 
 repo_info.pack(anchor="nw")
 
