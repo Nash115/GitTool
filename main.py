@@ -197,7 +197,7 @@ def make_git_commit():
     get_git_status()
 
 def make_git_push():
-    command(actu_repo_folder,f"{GIT_FOLDER} push origin main") ############################################ ! ONLY FOR MAIN BRANCH !!!!!!!!!!
+    command(actu_repo_folder,f"{GIT_FOLDER} push origin {branches['actual']}")
     get_git_status()
 
 ##################
@@ -275,7 +275,7 @@ commit_bouton.pack(pady=5)
 commit_container.pack(side="left", padx=5)
 
 push_container = tk.Frame(command_frame, bd=3, relief="groove", bg="#424242")
-push_bouton = tk.Button(push_container, text="Push main branch on GitHub", command=make_git_push)
+push_bouton = tk.Button(push_container, text="Push actual branch on GitHub", command=make_git_push)
 push_bouton.pack(pady=5)
 push_container.pack(side="left", padx=5)
 
