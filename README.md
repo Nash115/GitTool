@@ -1,5 +1,5 @@
 # GitTool
-A python tool to simply use git.
+A tool made with Python to simplify the use of Git.
 
 ## Requirements :
 - [python](https://www.python.org/downloads/)
@@ -7,12 +7,12 @@ A python tool to simply use git.
 ## Download :
 
 ### Lastest version (stable)
-- [lastest version](https://github.com/Nash115/GitTool/releases/tag/v-0.1.0)
+- [lastest version](https://github.com/Nash115/GitTool/releases/tag/v-0.1.1)
 
 or 
 
 ### Clone the actual repo ( ! can be unstable ! )
-```
+```bash
 git clone https://github.com/Nash115/GitTool
 ```
 
@@ -20,7 +20,7 @@ git clone https://github.com/Nash115/GitTool
 To launch the program, run the "main.py" file with python
 
 - If the path to the repositories folder (top left of the main window) is incorrect, modify the "userPreferences.json" file like this :
-  ```
+  ```json
   {
     "repoFolder": "[your folder path]"
   }
